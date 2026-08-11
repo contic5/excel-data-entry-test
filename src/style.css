@@ -1,0 +1,16 @@
+#root
+{
+    margin: auto;
+    max-width: 800px;
+    padding: 10px;
+    background-color: hsl(210, 60%, 75%);
+    min-height: 100vh;
+}
+body
+{
+    background-color: hsl(210, 60%, 40%);
+}
+canvas
+{
+    background-color: aliceblue;
+}
