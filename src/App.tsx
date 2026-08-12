@@ -14,7 +14,7 @@ function App()
   const [headers_row,setHeadersRow]=useState<React.JSX.Element[]>();
   const [displayed_rows,setDisplayedRows]=useState<React.JSX.Element[]>();
   const [input_values,setInputValues]=useState<string[][]>([]);
-  const [last_index,setLastIndex]=useState([0,0]);
+  const [last_index,setLastIndex]=useState([-1,-1]);
 
   function update_inputs(e:React.ChangeEvent<HTMLInputElement>)
   {
@@ -30,6 +30,7 @@ function App()
       console.log(value);
       input_values_temp[row][column]=value;
       setInputValues(input_values_temp);
+      setLastIndex([row,column]);
     }
   }
 
@@ -88,17 +89,41 @@ function App()
     }
   },[filtered_data,excel_data])
 
+  function handle_cell(header:any,column_number:number,row_number:number)
+  {
+    if(input_values[row_number][column_number]==filtered_data[row_number][column_number])
+    {
+      return (<td className="table-success">
+      <input name={`input_${row_number}_${column_number}`} value={input_values[row_number][column_number]} onChange={update_inputs}></input>
+      </td>);
+    }
+    else if((row_number!=last_index[0]||column_number!=last_index[1])&&input_values[row_number][column_number]!="")
+    {
+      return (<td className="table-danger">
+      <input name={`input_${row_number}_${column_number}`} value={input_values[row_number][column_number]} onChange={update_inputs}></input>
+      </td>);
+    }
+    else
+    {
+      return (<td>
+      <input name={`input_${row_number}_${column_number}`} value={input_values[row_number][column_number]} onChange={update_inputs}></input>
+      </td>);
+    }
+  }
+  function handle_row(row:Record<any, any>,row_number:number)
+  {
+    let headers=Object.keys(row);
+    return(<tr>
+    {
+      headers.map((header,column_number) => handle_cell(header,column_number,row_number))
+    }
+    </tr>);
+  }
   useEffect(()=>{
     if(filtered_data!=null&&filtered_data.length>0)
     {
       let headers=Object.keys(filtered_data[0]);
-      let excel_data_table_temp=filtered_data.map((row,row_number)=>(<tr>
-      {
-        headers.map((header: any,column_number:number)=><td>
-        <input name={`input_${row_number}_${column_number}`} value={input_values[row_number][column_number]} onChange={update_inputs}></input>
-        </td>)
-      }
-      </tr>));
+      let excel_data_table_temp=filtered_data.map(handle_row);
       setExcelDataTable(excel_data_table_temp);
     }
   },[filtered_data,excel_data,input_values]);
