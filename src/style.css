@@ -1,7 +1,6 @@
 #root
 {
-    margin: auto;
-    max-width: 800px;
+    margin: 0px 10px;
     padding: 10px;
     background-color: hsl(210, 60%, 75%);
     min-height: 100vh;
@@ -13,4 +12,19 @@ body
 canvas
 {
     background-color: aliceblue;
+}
+table
+{
+    max-width: 800px;
+}
+.grid
+{
+    display: grid;
+    gap: 0 30px;
+    grid-template-columns: 1fr 400px; 
+}
+.vertical-scroll
+{
+    height: 800px;
+    overflow-y: auto;
 }
