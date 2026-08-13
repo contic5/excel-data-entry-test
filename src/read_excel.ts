@@ -37,6 +37,7 @@ async function get_target_sheet(sheets:any,sheet_name:string)
     }
     return null;
 }
+//Get data from Excel sheet
 export async function get_data(target_file:string,sheet_name="Data",start_row=1)
 {
     const response=await fetch(target_file);
@@ -46,7 +47,11 @@ export async function get_data(target_file:string,sheet_name="Data",start_row=1)
    
     const sheet=await get_target_sheet(sheets,sheet_name);
     let data=sheet["data"];
+
+    //Only keep data from start_row-1 to data.length.
     data=data.slice(start_row-1,data.length);
+
+    //Convert array data to dictionaries
     const dictionaries=await handle_data(data);
     
     return dictionaries;

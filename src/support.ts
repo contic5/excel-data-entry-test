@@ -14,6 +14,8 @@ export function record_array_to_2d_array(record_array:Record<any,any>[])
     }
     return res;
 }
+
+//Randomly shuffle data
 export function shuffle_values(arr:any[])
 {
     for(let i=arr.length-1;i>0;i--)

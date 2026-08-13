@@ -5,7 +5,7 @@ import { shuffle_values } from './support';
 
 function App() 
 {
-  const [excel_data_table,setExcelDataTable]=useState<React.JSX.Element[]>();
+  const [input_entry_table,setInputEntryTable]=useState<React.JSX.Element[]>();
   const [headers_row,setHeadersRow]=useState<React.JSX.Element[]>();
   const [displayed_rows,setDisplayedRows]=useState<React.JSX.Element[]>();
 
@@ -23,28 +23,33 @@ function App()
   function update_inputs(e:React.ChangeEvent<HTMLInputElement>)
   {
     let input_values_temp=[...input_values];
-    console.log("Try to update inputs");
     if(e.target!=null)
     {
+      //Access the row and column through the input element name
       const name = e.target.name;
       let parts=name.split("_");
       let row=parseInt(parts[1]);
       let column=parseInt(parts[2]);
       const value= e.target.value;
-      console.log(value);
+
+      //Update input value
       input_values_temp[row][column]=value;
       setInputValues(input_values_temp);
+
+      //Store the last row and column that was updated.
       setLastIndex([row,column]);
     }
   }
 
   function reroll_values()
   {
+    //Shuffle array and get the first 50 rows.
     let filtered_data_temp=[...excel_data];
     filtered_data_temp=shuffle_values(filtered_data_temp);
     filtered_data_temp=filtered_data_temp.slice(0,50);
     setFilteredData(filtered_data_temp);
 
+    //Reset all inputs
     let input_values_temp:any=[];
     let total_headers=Object.keys(filtered_data_temp[0]).length;
     for(let i=0;i<filtered_data_temp.length;i++)
@@ -55,10 +60,13 @@ function App()
         input_values_temp[i].push("");
       }
     }
+
+    //Reset last index to [-1,-1]
     setLastIndex([-1,-1]);
     setInputValues(input_values_temp);
   }
 
+  //Load the mock participant data
   useEffect(()=>{
     async function load_data()
     {
@@ -71,6 +79,7 @@ function App()
     load_data();
   },[]);
 
+  //If the excel data has been loaded, reroll values.
   useEffect(()=>{
     if(excel_data!=null&&excel_data.length>0)
     {
@@ -79,18 +88,20 @@ function App()
   },[excel_data])
 
 
+  //Display the filtered data in a grid so people can enter it.
   useEffect(()=>{
     if(filtered_data!=null&&filtered_data.length>0)
     {
-      console.log(filtered_data);
+      //Get all of the headers
       let headers=Object.keys(filtered_data[0]);
-      console.log(headers);
-      
+
+      //Map each header to a th
       let headers_row_temp=headers.map(header=>(
         <th scope="col">{header}</th>
       ));
       setHeadersRow(headers_row_temp);
 
+      //Make a grid cell for each item in filtered data.
       let displayed_rows_temp=filtered_data.map(row=><div className='row mb-2 bg-light border'>
       <div className='col'>
       <p>{row['first_name']+" "+row['last_name']}</p>
@@ -98,12 +109,13 @@ function App()
       <p>{row['city']+","+row['state']}</p>
       </div></div>);
       setDisplayedRows(displayed_rows_temp);
-
     }
-  },[filtered_data,excel_data])
+  },[filtered_data])
 
+  //Set up data entry cell.
   function handle_cell(header:any,column_number:number,row_number:number)
   {
+    //The classname indicates if the cell is correct, incorrect or not done yet.
     let td_classname="";
 
     //If the cell input matches with the data, make the cell have a success background.
@@ -122,6 +134,8 @@ function App()
     <input name={`input_${row_number}_${column_number}`} value={input_values[row_number][column_number]} onChange={update_inputs} onFocus={update_inputs}></input>
     </td>);
   }
+
+  //Loop through each input row
   function handle_row(row:Record<any, any>,row_number:number)
   {
     let headers=Object.keys(row);
@@ -131,15 +145,20 @@ function App()
     }
     </tr>);
   }
+
+  //Update input entry table when the user changes and input
   useEffect(()=>{
     if(filtered_data!=null&&filtered_data.length>0)
     {
-      let excel_data_table_temp=filtered_data.map(handle_row);
-      setExcelDataTable(excel_data_table_temp);
+      //Set up input entry table based on correct and incorrect answers.
+      let input_entry_table_temp=filtered_data.map(handle_row);
+      setInputEntryTable(input_entry_table_temp);
 
+      //Track how many cells have been accurately completed and have been completed.
       let accurate_cells_temp=0;
       let completed_cells_temp=0;
       let headers=Object.keys(filtered_data[0]);
+
       for(let i=0;i<filtered_data.length;i++)
       {
         for(let j=0;j<headers.length;j++)
@@ -189,7 +208,7 @@ function App()
       </tr>
       </thead>
       <tbody>
-      {excel_data_table}
+      {input_entry_table}
       </tbody>
       </table>
       </div>
