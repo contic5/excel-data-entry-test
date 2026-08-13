@@ -5,4 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/excel-data-entry-test/', // match your repo name exactly
   plugins: [react()],
+  build: {
+    outDir: 'build' // Optional — only if you want `build` instead of `dist`
+  },
 })

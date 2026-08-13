@@ -28,3 +28,12 @@ table
     height: 800px;
     overflow-y: auto;
 }
+.block
+{
+    display: block;
+    margin-bottom: 20px;
+}
+.fit-content
+{
+    max-width: fit-content !important;
+}

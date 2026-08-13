@@ -1,13 +1,10 @@
 import { useState,useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import get_data from './read_excel'
 import React from 'react'
+import { shuffle_values } from './support';
 
 function App() 
 {
-
   const [excel_data_table,setExcelDataTable]=useState<React.JSX.Element[]>();
   const [headers_row,setHeadersRow]=useState<React.JSX.Element[]>();
   const [displayed_rows,setDisplayedRows]=useState<React.JSX.Element[]>();
@@ -41,6 +38,27 @@ function App()
     }
   }
 
+  function reroll_values()
+  {
+    let filtered_data_temp=[...excel_data];
+    filtered_data_temp=shuffle_values(filtered_data_temp);
+    filtered_data_temp=filtered_data_temp.slice(0,50);
+    setFilteredData(filtered_data_temp);
+
+    let input_values_temp:any=[];
+    let total_headers=Object.keys(filtered_data_temp[0]).length;
+    for(let i=0;i<filtered_data_temp.length;i++)
+    {
+      input_values_temp.push([]);
+      for(let j=0;j<total_headers;j++)
+      {
+        input_values_temp[i].push("");
+      }
+    }
+    setLastIndex([-1,-1]);
+    setInputValues(input_values_temp);
+  }
+
   useEffect(()=>{
     async function load_data()
     {
@@ -56,22 +74,10 @@ function App()
   useEffect(()=>{
     if(excel_data!=null&&excel_data.length>0)
     {
-      let filtered_data_temp=excel_data.slice(0,50);
-      setFilteredData(filtered_data_temp);
-
-      let input_values_temp:any=[];
-      let total_headers=Object.keys(filtered_data_temp[0]).length;
-      for(let i=0;i<filtered_data_temp.length;i++)
-      {
-        input_values_temp.push([]);
-        for(let j=0;j<total_headers;j++)
-        {
-          input_values_temp[i].push("");
-        }
-      }
-      setInputValues(input_values_temp);
+      reroll_values();
     }
   },[excel_data])
+
 
   useEffect(()=>{
     if(filtered_data!=null&&filtered_data.length>0)
@@ -164,9 +170,16 @@ function App()
     <>
       <h1>Excel Data Entry Test</h1>
       <h2>Results</h2>
-      <p>Accurate Cells: {accurate_cells}</p>
-      <p>Completed Cells: {completed_cells}</p>
-      <p>Accuracy: {accuracy}%</p>
+
+      <div className='container fit-content' style={{marginLeft:0}}>
+      <div className='row mb-2 bg-light border'>
+      <div className='col fit-content'>Accurate Cells: {accurate_cells}</div>
+      <div className='col fit-content'>Completed Cells: {completed_cells}</div>
+      <div className='col fit-content'>Accuracy: {accuracy}%</div>
+      <div className='col fit-content'><button onClick={reroll_values}>Reroll</button></div>
+      </div>
+      </div>
+      
       <div className="grid">
       <div className="vertical-scroll">
       <table className="table table-striped table-bordered">
