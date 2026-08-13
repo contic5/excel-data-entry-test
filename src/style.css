@@ -33,7 +33,7 @@ table
     display: block;
     margin-bottom: 20px;
 }
-.fit-content
-{
-    max-width: fit-content !important;
+.container-fit {
+  width: fit-content;
+  max-width: 100%; /* Prevents horizontal overflow on smaller viewports */
 }

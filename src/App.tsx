@@ -10,7 +10,7 @@ function App()
   const [displayed_rows,setDisplayedRows]=useState<React.JSX.Element[]>();
 
   //Excel data is stored as dictionary for easier column access.I care about access the exact column name.
-  const [excel_data, setExcelData] = useState<Record<any,any>[]>([]);
+  const [sample_data, setSampleData] = useState<Record<any,any>[]>([]);
   const [filtered_data,setFilteredData]=useState<Record<any,any>[]>([]);
 
   //Inputs are stored as standard 2d array for easier tracking.
@@ -19,6 +19,8 @@ function App()
 
   const [accurate_cells,setAccurateCells]=useState(0);
   const [completed_cells,setCompletedCells]=useState(0);
+
+  const [total_rows,setTotalRows]=useState(50);
 
   function update_inputs(e:React.ChangeEvent<HTMLInputElement>)
   {
@@ -40,52 +42,83 @@ function App()
       setLastIndex([row,column]);
     }
   }
-
-  function reroll_values()
+  function update_total_rows(e:React.ChangeEvent<HTMLInputElement>)
   {
-    //Shuffle array and get the first 50 rows.
-    let filtered_data_temp=[...excel_data];
-    filtered_data_temp=shuffle_values(filtered_data_temp);
-    filtered_data_temp=filtered_data_temp.slice(0,50);
+    const value= parseInt(e.target.value);
+    if(value==null||Number.isNaN(value))
+    {
+      setTotalRows(1);
+    }
+    else
+    {
+      setTotalRows(value);
+    }
+  }
+
+  function filter_data(prev_input_values:any[]=[])
+  {
+    let filtered_data_temp=sample_data.slice(0,total_rows);
     setFilteredData(filtered_data_temp);
 
     //Reset all inputs
-    let input_values_temp:any=[];
     let total_headers=Object.keys(filtered_data_temp[0]).length;
-    for(let i=0;i<filtered_data_temp.length;i++)
+    let input_values_temp:any=[];
+    for(let i=0;i<total_rows;i++)
     {
+      
       input_values_temp.push([]);
       for(let j=0;j<total_headers;j++)
       {
-        input_values_temp[i].push("");
+        if(i<prev_input_values.length)
+        {
+          input_values_temp[i][j]=prev_input_values[i][j];
+        }
+        else
+        {
+          input_values_temp[i].push("");
+        }
       }
     }
-
     //Reset last index to [-1,-1]
     setLastIndex([-1,-1]);
     setInputValues(input_values_temp);
+  }
+  function shuffle_sample_data()
+  {
+    //Shuffle array and get the first 50 rows.
+    let sample_data_temp=[...sample_data];
+    sample_data_temp=shuffle_values(sample_data_temp);
+    setSampleData(sample_data_temp);
   }
 
   //Load the mock participant data
   useEffect(()=>{
     async function load_data()
     {
-      if(excel_data==null||excel_data.length==0)
+      if(sample_data==null||sample_data.length==0)
       {
-        let excel_data_temp=await get_data("MOCK_DATA.xlsx","data");
-        setExcelData(excel_data_temp);
+        let sample_data_temp=await get_data("MOCK_DATA.xlsx","data");
+        setSampleData(sample_data_temp);
       }
     }
     load_data();
   },[]);
 
-  //If the excel data has been loaded, reroll values.
+  //If the excel data has been shuffled, reroll all values.
   useEffect(()=>{
-    if(excel_data!=null&&excel_data.length>0)
+    if(sample_data!=null&&sample_data.length>0)
     {
-      reroll_values();
+      filter_data();
     }
-  },[excel_data])
+  },[sample_data])
+
+   //If the number of rows has been changed, just use the old values.
+  useEffect(()=>{
+    if(sample_data!=null&&sample_data.length>0)
+    {
+      filter_data([...input_values]);
+    }
+  },[total_rows])
 
 
   //Display the filtered data in a grid so people can enter it.
@@ -178,7 +211,7 @@ function App()
       setAccurateCells(accurate_cells_temp);
       setCompletedCells(completed_cells_temp);
     }
-  },[filtered_data,excel_data,input_values]);
+  },[filtered_data,sample_data,input_values]);
 
   let accuracy=0;
   if(completed_cells>0)
@@ -190,12 +223,15 @@ function App()
       <h1>Excel Data Entry Test</h1>
       <h2>Results</h2>
 
-      <div className='container fit-content' style={{marginLeft:0}}>
+      <div className='container .container-fit p-3' style={{marginLeft:0, fontSize:18}}>
       <div className='row mb-2 bg-light border'>
-      <div className='col fit-content'>Accurate Cells: {accurate_cells}</div>
-      <div className='col fit-content'>Completed Cells: {completed_cells}</div>
-      <div className='col fit-content'>Accuracy: {accuracy}%</div>
-      <div className='col fit-content'><button onClick={reroll_values}>Reroll</button></div>
+      <div className='col'>Accurate Cells: {accurate_cells}</div>
+      <div className='col'>Completed Cells: {completed_cells}</div>
+      <div className='col'>Accuracy: {accuracy}%</div>
+      <div className='col'>
+      <label htmlFor='rows'>Rows:</label>
+      <input id='rows' onChange={update_total_rows} type="number" value={total_rows} min={1} max={999} required/></div>
+      <div className='col'><button onClick={shuffle_sample_data}>Reroll Data</button></div>
       </div>
       </div>
       
