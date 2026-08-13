@@ -13,6 +13,8 @@ function App()
   const [excel_data_table,setExcelDataTable]=useState<React.JSX.Element[]>();
   const [headers_row,setHeadersRow]=useState<React.JSX.Element[]>();
   const [displayed_rows,setDisplayedRows]=useState<React.JSX.Element[]>();
+
+  //Inputs are stored as standard 2d array to allow for easier tracking.
   const [input_values,setInputValues]=useState<string[][]>([]);
   const [last_index,setLastIndex]=useState([-1,-1]);
 
@@ -91,18 +93,21 @@ function App()
 
   function handle_cell(header:any,column_number:number,row_number:number)
   {
-    if(input_values[row_number][column_number]==filtered_data[row_number][column_number])
+    //If the cell input matches with the data, make the cell have a success background.
+    if(input_values[row_number][column_number]==filtered_data[row_number][header])
     {
       return (<td className="table-success">
       <input name={`input_${row_number}_${column_number}`} value={input_values[row_number][column_number]} onChange={update_inputs}></input>
       </td>);
     }
+    //If the cell input does not match with the data and you are on a different cell, make the cell have an incorrect background.
     else if((row_number!=last_index[0]||column_number!=last_index[1])&&input_values[row_number][column_number]!="")
     {
       return (<td className="table-danger">
       <input name={`input_${row_number}_${column_number}`} value={input_values[row_number][column_number]} onChange={update_inputs}></input>
       </td>);
     }
+    //Otherwise have the cell keep its normal background color.
     else
     {
       return (<td>
@@ -122,9 +127,10 @@ function App()
   useEffect(()=>{
     if(filtered_data!=null&&filtered_data.length>0)
     {
-      let headers=Object.keys(filtered_data[0]);
       let excel_data_table_temp=filtered_data.map(handle_row);
       setExcelDataTable(excel_data_table_temp);
+
+      let accurate_cells_temp=0;
     }
   },[filtered_data,excel_data,input_values]);
 
