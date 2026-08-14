@@ -25,7 +25,7 @@ table
 }
 .vertical-scroll
 {
-    height: 800px;
+    height: 700px;
     overflow-y: auto;
 }
 .block
