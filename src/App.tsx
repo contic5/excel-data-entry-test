@@ -21,6 +21,7 @@ function App()
   const [completed_cells,setCompletedCells]=useState(0);
 
   const [total_rows,setTotalRows]=useState(50);
+  const [seconds,setSeconds]=useState(0);
 
   function update_inputs(e:React.ChangeEvent<HTMLInputElement>)
   {
@@ -86,6 +87,7 @@ function App()
   function shuffle_sample_data()
   {
     //Shuffle array and get the first 50 rows.
+    setSeconds(0);
     let sample_data_temp=[...sample_data];
     sample_data_temp=shuffle_values(sample_data_temp);
     setSampleData(sample_data_temp);
@@ -180,6 +182,18 @@ function App()
     </tr>);
   }
 
+  //Track time passed
+  useEffect(() => {
+    // 1. Start the interval
+    const intervalId = setInterval(() => {
+      // 2. Use a functional state update to always get the freshest value
+      setSeconds((seconds) => seconds + 1);
+    }, 1000);
+
+    // 3. Return a cleanup function to clear the interval on unmount
+    return () => clearInterval(intervalId);
+  }, []); // Empty array ensures the interval is only set up once
+
   //Update input entry table when the user changes and input
   useEffect(()=>{
     if(filtered_data!=null&&filtered_data.length>0)
@@ -219,18 +233,34 @@ function App()
   {
     accuracy=Math.round((100*accurate_cells)/completed_cells);
   }
+
+  let seconds_written="";
+  seconds_written+=seconds%60;
+  if(seconds<10)
+  {
+    seconds_written="0"+seconds_written;
+  }
+  let minutes=Math.floor(seconds/60);
+  if(minutes==0)
+  {
+    seconds_written="0:"+seconds_written;
+  }
+  else
+  {
+    seconds_written=minutes+":"+seconds_written;
+  }
   return (
     <>
       <h1>Excel Data Entry Test</h1>
       <h2>About</h2>
       <p>The Excel Data Entry Test loads an Excel file created with Mockaroo and lets users practice entering realistic Excel data. The webpage tracks completed cells and the user's accuracy rate. Users can set how many rows they would like to type and randomize the data they have. This project will let students practice entering data.</p>
       <h2>Results</h2>
-
       <div className='container .container-fit' style={{marginLeft:0, fontSize:18}}>
       <div className='row mb-2 bg-light'>
       <div className='col p-3 border rounded'>Accurate Cells: {accurate_cells}</div>
       <div className='col p-3 border rounded'>Completed Cells: {completed_cells}</div>
       <div className='col p-3 border rounded'>Accuracy: {accuracy}%</div>
+      <div className='col p-3 border rounded'>Time: {seconds_written}</div>
       <div className='col p-3 border rounded'>
         <label htmlFor='rows'>Rows:</label>
         <input id='rows' onChange={update_total_rows} type="number" value={total_rows} min={1} max={999} required/>

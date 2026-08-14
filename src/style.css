@@ -38,11 +38,17 @@ table
   margin-left: 0; 
   max-width: 100%; /* Prevents horizontal overflow on smaller viewports */
 }
+#game
+{
+    position: sticky;
+    top: 0px;
+    z-index: 8;
+}
 thead th
 {
     position: sticky;
-    top:0;
-    z-index: 2; /* Keeps the header layered above scrolling content */
+    top:0px;
+    z-index: 9; /* Keeps the header layered above scrolling content */
 }
 p
 {
