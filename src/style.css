@@ -35,5 +35,16 @@ table
 }
 .container-fit {
   width: fit-content;
+  margin-left: 0; 
   max-width: 100%; /* Prevents horizontal overflow on smaller viewports */
+}
+thead th
+{
+    position: sticky;
+    top:0;
+    z-index: 2; /* Keeps the header layered above scrolling content */
+}
+p
+{
+    max-width: 800px;
 }

@@ -135,7 +135,8 @@ function App()
       setHeadersRow(headers_row_temp);
 
       //Make a grid cell for each item in filtered data.
-      let displayed_rows_temp=filtered_data.map(row=><div className='row mb-2 bg-light border'>
+      let displayed_rows_temp=filtered_data.map(row=>
+      <div className='row mb-2 bg-light border rounded'>
       <div className='col'>
       <p>{row['first_name']+" "+row['last_name']}</p>
       <p>{row['email']}</p>
@@ -221,17 +222,21 @@ function App()
   return (
     <>
       <h1>Excel Data Entry Test</h1>
+      <h2>About</h2>
+      <p>The Excel Data Entry Test loads an Excel file created with Mockaroo and lets users practice entering realistic Excel data. The webpage tracks completed cells and the user's accuracy rate. Users can set how many rows they would like to type and randomize the data they have. This project will let students practice entering data.</p>
       <h2>Results</h2>
 
-      <div className='container .container-fit p-3' style={{marginLeft:0, fontSize:18}}>
-      <div className='row mb-2 bg-light border'>
-      <div className='col'>Accurate Cells: {accurate_cells}</div>
-      <div className='col'>Completed Cells: {completed_cells}</div>
-      <div className='col'>Accuracy: {accuracy}%</div>
-      <div className='col'>
-      <label htmlFor='rows'>Rows:</label>
-      <input id='rows' onChange={update_total_rows} type="number" value={total_rows} min={1} max={999} required/></div>
-      <div className='col'><button onClick={shuffle_sample_data}>Reroll Data</button></div>
+      <div className='container .container-fit' style={{marginLeft:0, fontSize:18}}>
+      <div className='row mb-2 bg-light'>
+      <div className='col p-3 border rounded'>Accurate Cells: {accurate_cells}</div>
+      <div className='col p-3 border rounded'>Completed Cells: {completed_cells}</div>
+      <div className='col p-3 border rounded'>Accuracy: {accuracy}%</div>
+      <div className='col p-3 border rounded'>
+        <label htmlFor='rows'>Rows:</label>
+        <input id='rows' onChange={update_total_rows} type="number" value={total_rows} min={1} max={999} required/>
+      </div>
+      <div className='col p-3 border rounded'>
+        <button onClick={shuffle_sample_data}>Reroll Data</button></div>
       </div>
       </div>
       
