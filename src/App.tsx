@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react'
+import { useState,useEffect,useRef } from 'react'
 import get_data from './read_excel'
 import React from 'react'
 import { shuffle_values } from './support';
@@ -22,6 +22,10 @@ function App()
 
   const [total_rows,setTotalRows]=useState(50);
   const [seconds,setSeconds]=useState(0);
+
+  //Setting pause to true so it gets flipped to false at the start.
+  const [pause,setPause]=useState(true);
+  const timerRef=useRef<number | null>(null);
 
   function update_inputs(e:React.ChangeEvent<HTMLInputElement>)
   {
@@ -91,6 +95,30 @@ function App()
     let sample_data_temp=[...sample_data];
     sample_data_temp=shuffle_values(sample_data_temp);
     setSampleData(sample_data_temp);
+  }
+
+  function toggle_pause()
+  {
+    const new_pause=!pause;
+    if(new_pause)
+    {
+      if (timerRef.current !== null) 
+      {
+        clearInterval(timerRef.current); // Clear the active interval
+        timerRef.current = null;         // Reset reference
+      }
+    }
+    else
+    {
+      if (timerRef.current !== null) return; // Prevent multiple intervals
+
+      // 1. Start the interval
+      timerRef.current = setInterval(() => {
+        // 2. Use a functional state update to always get the freshest value
+        setSeconds((seconds) => seconds + 1);
+      }, 1000);
+    }
+    setPause(new_pause);
   }
 
   //Load the mock participant data
@@ -184,14 +212,7 @@ function App()
 
   //Track time passed
   useEffect(() => {
-    // 1. Start the interval
-    const intervalId = setInterval(() => {
-      // 2. Use a functional state update to always get the freshest value
-      setSeconds((seconds) => seconds + 1);
-    }, 1000);
-
-    // 3. Return a cleanup function to clear the interval on unmount
-    return () => clearInterval(intervalId);
+    toggle_pause();
   }, []); // Empty array ensures the interval is only set up once
 
   //Update input entry table when the user changes and input
@@ -236,7 +257,7 @@ function App()
 
   let seconds_written="";
   seconds_written+=seconds%60;
-  if(seconds<10)
+  if(seconds_written.length==1)
   {
     seconds_written="0"+seconds_written;
   }
@@ -261,6 +282,7 @@ function App()
       <div className='col p-3 border rounded'>Completed Cells: {completed_cells}</div>
       <div className='col p-3 border rounded'>Accuracy: {accuracy}%</div>
       <div className='col p-3 border rounded'>Time: {seconds_written}</div>
+      <div className='col p-3 border rounded'><button onClick={toggle_pause}>{pause ? "Resume":"Pause"}</button></div>
       <div className='col p-3 border rounded'>
         <label htmlFor='rows'>Rows:</label>
         <input id='rows' onChange={update_total_rows} type="number" value={total_rows} min={1} max={999} required/>
